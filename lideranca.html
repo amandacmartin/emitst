@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudo de Caso - Liderança em Segurança do Trabalho</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#035485',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        industrial: {
+                            dark: '#1e293b',
+                            amber: '#d97706',
+                            red: '#dc2626',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Estilos gerais de tela */
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .textarea-print-fallback {
+            display: none;
+        }
+
+        /* Estilos específicos para a conversão em PDF / Impressão */
+        @media print {
+            @page {
+                size: A4;
+                margin: 1.5cm;
+            }
+
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt;
+            }
+
+            /* Esconder elementos de interface e navegação */
+            .no-print, button, .action-buttons, .progress-bar-container {
+                display: none !important;
+            }
+
+            .container-main {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+            }
+
+            .card-box {
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+
+            /* Ocultar textareas interativas e exibir substituto impresso */
+            textarea.custom-textarea {
+                display: none !important;
+            }
+
+            .textarea-print-fallback {
+                display: block !important;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                min-height: 80px;
+                border: 1px dashed #94a3b8;
+                padding: 10px;
+                background-color: #fafafa !important;
+                border-radius: 6px;
+                font-size: 10.5pt;
+                line-height: 1.5;
+            }
+
+            .print-page-break {
+                page-break-before: always;
+            }
+
+            .sigaa-alert {
+                border: 2px solid #0284c7 !important;
+                background-color: #f0f7ff !important;
+                color: #075985 !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans min-h-screen pb-16">
+
+    <!-- Barra Superior de Ações (Visível apenas na tela) -->
+    <header class="no-print bg-slate-900 text-white sticky top-0 z-50 shadow-md border-b border-slate-700">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-hard-hat text-amber-500 text-2xl"></i>
+                <div>
+                    <h1 class="font-bold text-base md:text-lg leading-tight">Segurança do Trabalho - Estudo de Caso</h1>
+                    <p class="text-xs text-slate-400">Liderança no Setor de Estampagem</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="limparRespostas()" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-600 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Limpar Respostas
+                </button>
+                <button onclick="exportarPDF()" class="px-4 py-2 text-xs font-bold bg-brand-600 hover:bg-brand-500 text-white rounded-lg shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-sm"></i> Salvar / Exportar PDF
+                </button>
+            </div>
+        </div>
+        
+        <!-- Barra de Progresso de Preenchimento -->
+        <div class="w-full bg-slate-800 h-1.5 progress-bar-container">
+            <div id="progressBar" class="bg-amber-500 h-1.5 transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-6 container-main">
+        
+        <!-- Cabecalho Acadêmico / Identificação -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6 card-box">
+            <div class="border-b border-slate-200 pb-4 mb-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-brand-50 text-brand-700 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-graduation-cap"></i> Atividade Acadêmica
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">ESTUDO DE CASO - LIDERANÇA</h1>
+                    <p class="text-sm text-slate-600 font-medium">Análise de Gestão e Segurança na Indústria Metalúrgica</p>
+                </div>
+                <div class="text-right flex flex-col items-start md:items-end">
+                    <span class="text-xs text-slate-500 font-medium">Data de Realização:</span>
+                    <input type="text" id="dataAtividade" readonly class="mt-1 bg-slate-100 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-700 cursor-not-allowed focus:outline-none select-none">
+                </div>
+            </div>
+
+            <!-- Dados da Equipe -->
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <div>
+                    <label for="nomeEquipe" class="block text-sm font-bold text-slate-700 mb-1">
+                        <i class="fa-solid fa-users text-brand-600 mr-1"></i> Nome da Equipe / Integrantes:
+                    </label>
+                    <textarea id="nomeEquipe" rows="2" placeholder="Digite o nome da equipe e a lista completa dos integrantes..." 
+                        class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                        oninput="atualizarRespostasImpressao('nomeEquipe')"></textarea>
+                    <div id="nomeEquipe-print" class="textarea-print-fallback"></div>
+                </div>
+            </div>
+
+            <!-- Instruções -->
+            <div class="mt-6 bg-slate-50 rounded-lg p-4 border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-2">
+                    <i class="fa-solid fa-circle-info text-brand-600"></i> Instruções para Execução:
+                </h3>
+                <ul class="text-xs md:text-sm text-slate-600 space-y-1.5 list-disc pl-5">
+                    <li>Leiam atentamente o cenário industrial abaixo e respondam às <strong>4 questões propostas</strong>.</li>
+                    <li>Utilizem os conceitos trabalhados em aula para fundamentar as decisões técnicas do grupo:</li>
+                </ul>
+
+                <!-- Badges das teorias de apoio -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+                    <div class="bg-white border border-slate-200 rounded-md p-2 text-center text-xs font-semibold text-slate-700 shadow-sm">
+                        <i class="fa-solid fa-brain text-purple-600 mb-1 block text-sm"></i> Teoria X / Y
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-md p-2 text-center text-xs font-semibold text-slate-700 shadow-sm">
+                        <i class="fa-solid fa-user-tie text-blue-600 mb-1 block text-sm"></i> Estilos de Liderança
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-md p-2 text-center text-xs font-semibold text-slate-700 shadow-sm">
+                        <i class="fa-solid fa-table-cells text-emerald-600 mb-1 block text-sm"></i> Grade Gerencial
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-md p-2 text-center text-xs font-semibold text-slate-700 shadow-sm">
+                        <i class="fa-solid fa-sliders text-amber-600 mb-1 block text-sm"></i> Liderança Situacional
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção: O Cenário Industrial -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6 card-box">
+            <div class="flex items-center gap-3 border-b border-slate-200 pb-3 mb-4">
+                <div class="bg-amber-100 p-2.5 rounded-lg text-amber-700">
+                    <i class="fa-solid fa-industry text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 uppercase tracking-wide">O Cenário Industrial</h2>
+                    <p class="text-xs font-semibold text-amber-700">Setor de Estampagem da Metalúrgica</p>
+                </div>
+            </div>
+
+            <p class="text-sm text-slate-700 mb-4 leading-relaxed">
+                Vocês foram contratados como <strong>Técnicos em Segurança do Trabalho</strong> para reorganizar o setor de estampagem de uma grande indústria metalúrgica. O setor enfrenta um alto índice de atritos e descumprimento rotineiro das normas de segurança. A situação diagnóstica do setor é a seguinte:
+            </p>
+
+            <!-- Cards do Diagnóstico -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div class="bg-slate-50 border-l-4 border-red-500 rounded-r-lg p-4 text-xs md:text-sm text-slate-700">
+                    <div class="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-shield text-red-500"></i> 1. Gerência de Produção
+                    </div>
+                    <p>Atua sob forte cobrança e acredita que os operários só trabalham se forem vigiados de perto, ameaçados com punições e advertências por escrito.</p>
+                </div>
+
+                <div class="bg-slate-50 border-l-4 border-amber-500 rounded-r-lg p-4 text-xs md:text-sm text-slate-700">
+                    <div class="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-gear text-amber-500"></i> 2. Operários Antigos (Veteranos)
+                    </div>
+                    <p>Recusam-se a usar óculos de proteção e protetor auricular, alegando que <em>"o equipamento atrapalha a bater a meta de produção"</em> e que <em>"sempre fizeram assim sem acidentes"</em>.</p>
+                </div>
+
+                <div class="bg-slate-50 border-l-4 border-blue-500 rounded-r-lg p-4 text-xs md:text-sm text-slate-700">
+                    <div class="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-graduate text-blue-500"></i> 3. Operários Novos (Aprendizes)
+                    </div>
+                    <p>Demonstram alta motivação, mas cometem erros graves por falta de experiência prática e têm receio de fazer perguntas aos supervisores.</p>
+                </div>
+
+                <div class="bg-red-50 border-l-4 border-red-600 rounded-r-lg p-4 text-xs md:text-sm text-red-900">
+                    <div class="font-bold text-red-950 mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation text-red-600"></i> 4. Ocorrência Recente
+                    </div>
+                    <p>Na semana passada, ocorreu um <strong>princípio de incêndio</strong> no painel elétrico principal devido a uma ligação improvisada ("gambiarra") feita para não interromper a linha de produção.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Formulário das Questões -->
+        <form id="questoesForm" class="space-y-6">
+
+            <!-- QUESTÃO 1 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 card-box">
+                <div class="flex items-center gap-2 font-bold text-slate-900 text-base md:text-lg border-b border-slate-100 pb-3 mb-4">
+                    <span class="bg-brand-600 text-white w-7 h-7 rounded-full inline-flex items-center justify-center text-sm">1</span>
+                    <h3>Teoria X e Y de McGregor</h3>
+                </div>
+
+                <p class="text-xs md:text-sm text-slate-600 mb-4">
+                    A Gerência de Produção atual atua sob a premissa da <strong>Teoria X de McGregor</strong> (pressupondo que as pessoas evitam o trabalho, são preguiçosas e só funcionam sob controle rígido).
+                </p>
+
+                <div class="space-y-4">
+                    <!-- 1.a -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            a) Que problemas para a segurança do trabalho esse estilo de gestão autoritário traz no dia a dia da fábrica?
+                        </label>
+                        <textarea id="q1a" rows="4" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q1a')"></textarea>
+                        <div id="q1a-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q1a-count">0</span> palavras</div>
+                    </div>
+
+                    <!-- 1.b -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            b) Como a equipe de segurança do trabalho pode convencer a gerência a adotar a visão da Teoria Y (administração por objetivos, autonomia e estímulo à iniciativa)? Proponha uma ação prática para incentivar a postura preventiva dos trabalhadores sem depender de fiscalização ostensiva.
+                        </label>
+                        <textarea id="q1b" rows="4" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q1b')"></textarea>
+                        <div id="q1b-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q1b-count">0</span> palavras</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUESTÃO 2 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 card-box">
+                <div class="flex items-center gap-2 font-bold text-slate-900 text-base md:text-lg border-b border-slate-100 pb-3 mb-4">
+                    <span class="bg-brand-600 text-white w-7 h-7 rounded-full inline-flex items-center justify-center text-sm">2</span>
+                    <h3>Estilos Clássicos de Liderança</h3>
+                </div>
+
+                <p class="text-xs md:text-sm text-slate-600 mb-4">
+                    Considerando os três estilos clássicos de liderança: <strong>Autocrática, Democrática e Liberal (Laissez-Faire)</strong>:
+                </p>
+
+                <div class="space-y-4">
+                    <!-- 2.a -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            a) Diante do princípio de incêndio no painel elétrico, qual estilo de liderança o Técnico em Segurança deve adotar imediatamente na hora da emergência? Justifique.
+                        </label>
+                        <textarea id="q2a" rows="4" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q2a')"></textarea>
+                        <div id="q2a-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q2a-count">0</span> palavras</div>
+                    </div>
+
+                    <!-- 2.b -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            b) Na hora de elaborar a reformulação das metas de segurança e os procedimentos operacionais do setor, qual estilo deve ser aplicado para garantir o engajamento dos operários? Justifique.
+                        </label>
+                        <textarea id="q2b" rows="4" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q2b')"></textarea>
+                        <div id="q2b-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q2b-count">0</span> palavras</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quebra de página visual para impressão caso necessário -->
+            <div class="print-page-break"></div>
+
+            <!-- QUESTÃO 3 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 card-box">
+                <div class="flex items-center gap-2 font-bold text-slate-900 text-base md:text-lg border-b border-slate-100 pb-3 mb-4">
+                    <span class="bg-brand-600 text-white w-7 h-7 rounded-full inline-flex items-center justify-center text-sm">3</span>
+                    <h3>Liderança Situacional</h3>
+                </div>
+
+                <p class="text-xs md:text-sm text-slate-600 mb-4">
+                    A <strong>Teoria Situacional</strong> estabelece que o padrão de liderança adequado depende de três forças: as forças no líder, as forças nos subordinados (maturidade/experiência) e as forças na situação (risco/urgência). Como o Técnico em Segurança do Trabalho deve adaptar seu comportamento de liderança para gerenciar de forma distinta:
+                </p>
+
+                <div class="space-y-4">
+                    <!-- 3.a -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            a) O operário veterano e resistente ao uso de EPIs?
+                        </label>
+                        <textarea id="q3a" rows="4" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q3a')"></textarea>
+                        <div id="q3a-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q3a-count">0</span> palavras</div>
+                    </div>
+
+                    <!-- 3.b -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            b) O jovem aprendiz motivado, porém inexperiente e inseguro na operação?
+                        </label>
+                        <textarea id="q3b" rows="4" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q3b')"></textarea>
+                        <div id="q3b-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q3b-count">0</span> palavras</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUESTÃO 4 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 card-box">
+                <div class="flex items-center gap-2 font-bold text-slate-900 text-base md:text-lg border-b border-slate-100 pb-3 mb-4">
+                    <span class="bg-brand-600 text-white w-7 h-7 rounded-full inline-flex items-center justify-center text-sm">4</span>
+                    <h3>Grade Gerencial (Blake & Mouton)</h3>
+                </div>
+
+                <p class="text-xs md:text-sm text-slate-600 mb-4">
+                    A <strong>Grade Gerencial</strong> analisa a atuação do líder combinando duas dimensões: <em>Preocupação com Pessoas</em> e <em>Preocupação com a Produção/Resultados</em>.
+                </p>
+
+                <div class="space-y-4">
+                    <!-- 4.a -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            a) O que acontece em um setor de fábrica se o líder focar apenas na produção e ignorar a segurança e o bem-estar das pessoas?
+                        </label>
+                        <textarea id="q4a" rows="3" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q4a')"></textarea>
+                        <div id="q4a-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q4a-count">0</span> palavras</div>
+                    </div>
+
+                    <!-- 4.b -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            b) O que acontece se o líder focar apenas no bem-estar das pessoas e negligenciar os procedimentos técnicos e as metas operacionais?
+                        </label>
+                        <textarea id="q4b" rows="3" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q4b')"></textarea>
+                        <div id="q4b-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q4b-count">0</span> palavras</div>
+                    </div>
+
+                    <!-- 4.c -->
+                    <div>
+                        <label class="block text-xs md:text-sm font-bold text-slate-800 mb-2">
+                            c) Qual é o ponto de equilíbrio ideal na Grade Gerencial para um Técnico em Segurança do Trabalho?
+                        </label>
+                        <textarea id="q4c" rows="3" placeholder="Escreva a resposta fundamentada..." 
+                            class="custom-textarea w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                            oninput="atualizarRespostasImpressao('q4c')"></textarea>
+                        <div id="q4c-print" class="textarea-print-fallback"></div>
+                        <div class="no-print text-right text-xs text-slate-400 mt-1"><span id="q4c-count">0</span> palavras</div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+        <!-- Banner e Lembrete SIGAA -->
+        <div class="mt-8 bg-brand-50 border-2 border-brand-500 rounded-xl p-5 shadow-sm text-brand-900 sigaa-alert flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-brand-600 text-white p-3 rounded-xl text-2xl hidden sm:block">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base md:text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-bell text-amber-500 sm:hidden"></i> Lembrete de Envio do Trabalho
+                    </h4>
+                    <p class="text-xs md:text-sm text-brand-800 mt-0.5">
+                        <strong>Atenção:</strong> Após gerar e salvar o arquivo em PDF, realize o envio do documento no <strong>SIGAA</strong> dentro do prazo estabelecido.
+                    </p>
+                </div>
+            </div>
+            
+            <button onclick="exportarPDF()" class="no-print whitespace-nowrap bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-lg shadow-md transition flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-file-pdf"></i> Salvar PDF Agora
+            </button>
+        </div>
+
+        <footer class="text-center text-xs text-slate-400 mt-8 mb-4 no-print">
+            Atividade de Estudo de Caso - Gestão de Pessoas & Liderança em SST
+        </footer>
+
+    </main>
+
+    <script>
+        // Inicialização da aplicação
+        document.addEventListener("DOMContentLoaded", function() {
+            // Define data atual fixa no formato dd/mm/aaaa
+            const today = new Date();
+            const dia = String(today.getDate()).padStart(2, '0');
+            const mes = String(today.getMonth() + 1).padStart(2, '0');
+            const ano = today.getFullYear();
+            
+            document.getElementById('dataAtividade').value = `${dia}/${mes}/${ano}`;
+
+            // Carrega rascunhos se existirem
+            carregarRascunhos();
+            
+            // Atualiza progresso e visualização de impressão
+            atualizarProgresso();
+        });
+
+        // Lista de IDs dos campos de texto das questões
+        const camposIDs = ['nomeEquipe', 'q1a', 'q1b', 'q2a', 'q2b', 'q3a', 'q3b', 'q4a', 'q4b', 'q4c'];
+
+        // Atualiza a div oculta usada durante a impressão em PDF
+        function atualizarRespostasImpressao(id) {
+            const inputElement = document.getElementById(id);
+            const printElement = document.getElementById(id + '-print');
+            const countElement = document.getElementById(id + '-count');
+
+            if (inputElement && printElement) {
+                const valor = inputElement.value.trim();
+                printElement.innerText = valor.length > 0 ? valor : "(Não respondido)";
+                
+                // Salvar em localStorage
+                localStorage.setItem('rascunho_' + id, inputElement.value);
+
+                // Contador de palavras
+                if (countElement) {
+                    const palavras = valor ? valor.split(/\s+/).filter(w => w.length > 0).length : 0;
+                    countElement.innerText = palavras;
+                }
+            }
+
+            atualizarProgresso();
+        }
+
+        // Calcula e exibe a barra de progresso
+        function atualizarProgresso() {
+            let preenchidos = 0;
+            camposIDs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.value.trim().length > 5) {
+                    preenchidos++;
+                }
+            });
+
+            const porcentagem = Math.round((preenchidos / camposIDs.length) * 100);
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                progressBar.style.width = porcentagem + '%';
+            }
+        }
+
+        // Função para exportar/imprimir em PDF
+        function exportarPDF() {
+            // Garante que todas as divs de impressão estejam atualizadas
+            camposIDs.forEach(id => atualizarRespostasImpressao(id));
+
+            // Chama o diálogo nativo do navegador para imprimir ou salvar como PDF
+            window.print();
+        }
+
+        // Salvar Rascunhos Localmente
+        function carregarRascunhos() {
+            camposIDs.forEach(id => {
+                const salvo = localStorage.getItem('rascunho_' + id);
+                const el = document.getElementById(id);
+                if (salvo && el) {
+                    el.value = salvo;
+                    atualizarRespostasImpressao(id);
+                }
+            });
+        }
+
+        // Limpar Respostas
+        function limparRespostas() {
+            if (confirm("Tem certeza que deseja limpar todas as respostas preenchidas?")) {
+                camposIDs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = "";
+                        localStorage.removeItem('rascunho_' + id);
+                        atualizarRespostasImpressao(id);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
