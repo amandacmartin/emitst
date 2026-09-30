@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATIVIDADE SOBRE COMUNICAÇÃO</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- html2pdf.js for clean PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .case-card { transition: all 0.2s ease-in-out; }
+        .case-card:hover { transform: translateY(-2px); }
+        
+        /* Print Styles for html2pdf / Browser Print */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .container-print { max-width: 100% !important; margin: 0 !important; padding: 10px !important; }
+            .page-break { page-break-before: always; }
+            textarea { border: 1px solid #ccc !important; resize: none !important; }
+            .step-container { display: block !important; }
+        }
+        
+        textarea {
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50 no-print">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-500 p-2.5 rounded-lg text-white">
+                    <i class="fa-solid fa-comments text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">ATIVIDADE SOBRE COMUNICAÇÃO</h1>
+                    <p class="text-xs text-slate-400">Segurança do Trabalho & Comunicação Assertiva</p>
+                </div>
+            </div>
+            
+            <!-- Progress / Step Switcher -->
+            <div class="flex items-center space-x-2 bg-slate-800 p-1.5 rounded-xl text-sm font-medium">
+                <button id="tab-btn-1" onclick="switchStep(1)" class="px-4 py-2 rounded-lg bg-brand-500 text-white shadow transition-all duration-200 flex items-center space-x-2">
+                    <span class="w-5 h-5 rounded-full bg-white/20 text-xs flex items-center justify-center font-bold">1</span>
+                    <span>Etapa 1</span>
+                </button>
+                <button id="tab-btn-2" onclick="switchStep(2)" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all duration-200 flex items-center space-x-2">
+                    <span class="w-5 h-5 rounded-full bg-slate-700 text-xs flex items-center justify-center font-bold">2</span>
+                    <span>Etapa 2</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notice Banner for SIGAA -->
+    <div class="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-3 no-print">
+        <div class="max-w-5xl mx-auto flex items-center justify-between flex-wrap gap-2 text-sm font-medium">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-circle-info text-amber-600 text-lg"></i>
+                <span><strong>Atenção alunos:</strong> Após completar as Etapas 1 e 2, salvem a atividade concluída em <strong>PDF</strong> e enviem pelo <strong>SIGAA</strong>.</span>
+            </div>
+            <button onclick="exportToPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow flex items-center space-x-1.5 transition">
+                <i class="fa-solid fa-file-pdf"></i>
+                <span>Gerar PDF Agora</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main id="pdf-content" class="max-w-5xl mx-auto w-full px-4 py-8 flex-grow container-print">
+        
+        <!-- Header Info Card -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+            <div class="border-b border-slate-100 pb-4 mb-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-id-card text-brand-500"></i>
+                    Identificação do Grupo / Alunos
+                </h2>
+                <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-mono" id="timestamp-display"></span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Nome da Equipe / Integrantes <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" id="team-name" placeholder="Ex: Grupo 3 - Ana Silva, Carlos Santos..." 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-medium transition" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Data de Realização
+                    </label>
+                    <input type="date" id="activity-date" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 text-sm font-medium">
+                </div>
+            </div>
+        </div>
+
+        <!-- ETAPA 1 CONTAINER -->
+        <div id="etapa-1" class="step-container space-y-8">
+            <div class="bg-brand-600 text-white p-6 rounded-2xl shadow-md flex items-center justify-between">
+                <div>
+                    <span class="text-xs uppercase font-bold tracking-widest text-brand-100">Parte Inicial</span>
+                    <h2 class="text-2xl font-black">ETAPA 1 — ONDE A COMUNICAÇÃO FALHOU?</h2>
+                    <p class="text-sm text-brand-100 mt-1">Análise situacional de ocorrências e ruídos de comunicação em ambientes de trabalho.</p>
+                </div>
+                <div class="hidden sm:block text-4xl opacity-30">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+
+            <!-- CASO 1 -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 case-card">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-lg text-xs uppercase">Caso 1</span>
+                    <h3 class="text-lg font-bold text-slate-900">O EPI esquecido</h3>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border-l-4 border-rose-500 text-sm text-slate-700 mb-6 italic">
+                    "Durante a limpeza de uma máquina, o supervisor orientou verbalmente um funcionário a utilizar os equipamentos de proteção. Entretanto, não especificou quais eram necessários para aquela atividade. O trabalhador iniciou a limpeza utilizando apenas luvas, sem consultar o procedimento de segurança. Durante a atividade, sofreu uma lesão ocular causada por respingos de produto químico."
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Qual foi a falha de comunicação nessa situação?</label>
+                        <textarea id="c1_q1" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Que informação deveria ter sido transmitida ao trabalhador?</label>
+                        <textarea id="c1_q2" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">3. Reescreva a orientação do supervisor de forma clara e objetiva, considerando os riscos da atividade.</label>
+                        <textarea id="c1_q3" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CASO 2 -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 case-card">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded-lg text-xs uppercase">Caso 2</span>
+                    <h3 class="text-lg font-bold text-slate-900">A manutenção não comunicada</h3>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border-l-4 border-amber-500 text-sm text-slate-700 mb-6 italic">
+                    "Um funcionário realizou a manutenção de um equipamento e informou verbalmente a um colega que o serviço estava concluído. Entretanto, não comunicou ao responsável pela operação que havia retirado uma proteção da máquina e que ela ainda não estava liberada para uso. Ao iniciar o trabalho, outro funcionário sofreu um incidente ao entrar em contato com uma parte móvel desprotegida."
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Em que momento ocorreu a falha de comunicação?</label>
+                        <textarea id="c2_q1" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Quem deveria ter recebido a informação sobre a manutenção?</label>
+                        <textarea id="c2_q2" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">3. Elabore uma mensagem curta e objetiva que deveria ter sido transmitida antes de liberar o equipamento.</label>
+                        <textarea id="c2_q3" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CASO 3 -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 case-card">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-xs uppercase">Caso 3</span>
+                    <h3 class="text-lg font-bold text-slate-900">O DDS mal compreendido</h3>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border-l-4 border-blue-500 text-sm text-slate-700 mb-6 italic">
+                    "Durante um Diálogo Diário de Segurança (DDS), o encarregado alertou a equipe sobre o risco de queda de materiais durante a movimentação de cargas. Entretanto, a orientação foi transmitida rapidamente, sem esclarecer a necessidade de isolamento da área. Um trabalhador permaneceu próximo ao local durante a movimentação e foi atingido por um objeto que caiu."
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. O que faltou na comunicação realizada durante o DDS?</label>
+                        <textarea id="c3_q1" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Como o encarregado poderia verificar se todos compreenderam a orientação?</label>
+                        <textarea id="c3_q2" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">3. Reescreva o alerta que deveria ter sido transmitido à equipe.</label>
+                        <textarea id="c3_q3" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CASO 4 -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 case-card">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded-lg text-xs uppercase">Caso 4</span>
+                    <h3 class="text-lg font-bold text-slate-900">A Ordem de Serviço confusa</h3>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border-l-4 border-purple-500 text-sm text-slate-700 mb-6 italic">
+                    <p class="font-bold mb-1">Ordem de Serviço:</p>
+                    "Ao realizar trabalhos em altura, tome cuidado, utilize os equipamentos necessários e verifique se está tudo certo antes de começar. Caso tenha algum problema, avise alguém."<br><br>
+                    Durante a atividade, o trabalhador identificou que o sistema de proteção contra quedas apresentava uma irregularidade, mas, por não haver orientação específica, decidiu continuar o serviço. A situação foi identificada por um colega, que interrompeu a atividade antes que ocorresse uma queda.
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Quais são os principais ruídos presentes nessa Ordem de Serviço?</label>
+                        <textarea id="c4_q1" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Que informações deveriam estar explícitas na orientação?</label>
+                        <textarea id="c4_q2" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">3. Reescreva a Ordem de Serviço de forma clara, objetiva e assertiva, considerando a necessidade de interromper o trabalho diante de condições inseguras.</label>
+                        <textarea id="c4_q3" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CASO 5 -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 case-card">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-xs uppercase">Caso 5</span>
+                    <h3 class="text-lg font-bold text-slate-900">A orientação informal sobre a limpeza</h3>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border-l-4 border-teal-500 text-sm text-slate-700 mb-6 italic">
+                    "Ao final do expediente, o supervisor informou à equipe: 'Depois de terminar o trabalho, deixem tudo mais ou menos organizado. As ferramentas podem ficar por ali mesmo, desde que não atrapalhem muito'. Os trabalhadores deixaram ferramentas e materiais espalhados pela área de circulação. No dia seguinte, um funcionário tropeçou em uma ferramenta e sofreu uma queda."
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Quais expressões tornam a orientação confusa ou imprecisa?</label>
+                        <textarea id="c5_q1" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Que riscos podem surgir de uma instrução como essa?</label>
+                        <textarea id="c5_q2" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">3. Reescreva a orientação, estabelecendo instruções claras sobre organização e limpeza do local.</label>
+                        <textarea id="c5_q3" class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Digite sua resposta..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quadro Resumo Etapa 1 -->
+            <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-table text-brand-500"></i>
+                    Quadro Resumo — Etapa 1
+                </h3>
+                <p class="text-xs text-slate-400 mb-6">Sintetize os ruídos identificados e suas respetivas consequências para cada caso.</p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300 border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-xs font-bold uppercase text-slate-400">
+                                <th class="py-3 px-2 w-1/4">Caso</th>
+                                <th class="py-3 px-2 w-3/8">Ruídos Identificados</th>
+                                <th class="py-3 px-2 w-3/8">Consequência</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr>
+                                <td class="py-3 px-2 font-medium text-white">Caso 1 — EPI esquecido</td>
+                                <td class="py-2 px-2"><textarea id="summary_c1_ruidos" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize os ruídos..."></textarea></td>
+                                <td class="py-2 px-2"><textarea id="summary_c1_conseq" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize a consequência..."></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-2 font-medium text-white">Caso 2 — Manutenção não comunicada</td>
+                                <td class="py-2 px-2"><textarea id="summary_c2_ruidos" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize os ruídos..."></textarea></td>
+                                <td class="py-2 px-2"><textarea id="summary_c2_conseq" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize a consequência..."></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-2 font-medium text-white">Caso 3 — DDS mal compreendido</td>
+                                <td class="py-2 px-2"><textarea id="summary_c3_ruidos" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize os ruídos..."></textarea></td>
+                                <td class="py-2 px-2"><textarea id="summary_c3_conseq" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize a consequência..."></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-2 font-medium text-white">Caso 4 — OS confusa</td>
+                                <td class="py-2 px-2"><textarea id="summary_c4_ruidos" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize os ruídos..."></textarea></td>
+                                <td class="py-2 px-2"><textarea id="summary_c4_conseq" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize a consequência..."></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-2 font-medium text-white">Caso 5 — Orientação informal</td>
+                                <td class="py-2 px-2"><textarea id="summary_c5_ruidos" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize os ruídos..."></textarea></td>
+                                <td class="py-2 px-2"><textarea id="summary_c5_conseq" class="w-full bg-slate-800 text-white border border-slate-700 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500" placeholder="Sintetize a consequência..."></textarea></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bottom Step Next Button -->
+            <div class="flex justify-end pt-4 no-print">
+                <button onclick="switchStep(2)" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg flex items-center space-x-2 transition">
+                    <span>Avançar para Etapa 2</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ETAPA 2 CONTAINER -->
+        <div id="etapa-2" class="step-container space-y-8 hidden">
+            <div class="bg-indigo-600 text-white p-6 rounded-2xl shadow-md flex items-center justify-between">
+                <div>
+                    <span class="text-xs uppercase font-bold tracking-widest text-indigo-200">Parte Final</span>
+                    <h2 class="text-2xl font-black">ETAPA 2 — QUAL É O CANAL ADEQUADO?</h2>
+                    <p class="text-sm text-indigo-100 mt-1">Análise crítica dos meios de comunicação e sua eficácia operacional.</p>
+                </div>
+                <div class="hidden sm:block text-4xl opacity-30">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+            </div>
+
+            <!-- Channels List -->
+            <div id="channels-container" class="space-y-6">
+                <!-- Dynamically or Static Rendered Channels -->
+            </div>
+
+            <!-- Questão Complementar -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex items-center space-x-3 mb-3">
+                    <span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg text-xs uppercase">Conclusão</span>
+                    <h3 class="text-lg font-bold text-slate-900">Questão Complementar</h3>
+                </div>
+                <p class="text-sm text-slate-700 font-medium mb-4">
+                    Um mesmo assunto pode exigir mais de um canal de comunicação? Apresentem um exemplo e justifiquem.
+                </p>
+                <textarea id="complementary_question" class="w-full p-4 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500" placeholder="Apresente sua resposta e justificativa detalhada aqui..." rows="4"></textarea>
+            </div>
+
+            <!-- Final Export Bar -->
+            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-4 no-print">
+                <div>
+                    <h4 class="font-bold text-base">Atividade Concluída?</h4>
+                    <p class="text-xs text-slate-400">Certifique-se de que respondeu a todas as questões antes de exportar.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="switchStep(1)" class="px-4 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-300 text-sm font-medium transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i>Voltar para Etapa 1
+                    </button>
+                    <button onclick="exportToPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl shadow flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>Salvar Etapas 1 e 2 em PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-xs text-slate-500 no-print">
+        <p>Atividade Pedagógica Interativa — Comunicação Assertiva no Trabalho | Envie seu PDF no SIGAA</p>
+    </footer>
+
+    <script>
+        // Data structure for Etapa 2 Channels
+        const channelsData = [
+            {
+                id: 1,
+                title: "1. Ordem verbal",
+                scenario: "Um supervisor percebe que um trabalhador está executando uma atividade de maneira insegura e precisa interrompê-la imediatamente."
+            },
+            {
+                id: 2,
+                title: "2. E-mail corporativo",
+                scenario: "O Técnico em Segurança do Trabalho precisa comunicar aos gestores a programação de um treinamento obrigatório de segurança."
+            },
+            {
+                id: 3,
+                title: "3. DDS (Diálogo Diário de Segurança)",
+                scenario: "Antes de iniciar as atividades, o encarregado precisa orientar a equipe sobre os riscos e as medidas preventivas de uma tarefa."
+            },
+            {
+                id: 4,
+                title: "4. Cartaz",
+                scenario: "A empresa deseja alertar todos os trabalhadores sobre a importância de manter as rotas de emergência desobstruídas."
+            },
+            {
+                id: 5,
+                title: "5. WhatsApp corporativo",
+                scenario: "O supervisor precisa informar à equipe uma mudança de horário de um treinamento que ocorrerá no dia seguinte."
+            },
+            {
+                id: 6,
+                title: "6. Procedimento escrito",
+                scenario: "Uma empresa precisa estabelecer orientações padronizadas para a operação segura de uma máquina."
+            },
+            {
+                id: 7,
+                title: "7. Reunião",
+                scenario: "A equipe de segurança e os gestores precisam discutir as causas de um acidente ocorrido na empresa e definir medidas corretivas."
+            }
+        ];
+
+        let currentStep = 1;
+
+        // Initialize Page Data
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set auto date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('activity-date').value = today;
+            document.getElementById('timestamp-display').innerText = `Gerado em: ${new Date().toLocaleDateString('pt-BR')}`;
+
+            // Render Channels for Etapa 2
+            renderChannels();
+        });
+
+        // Render Etapa 2 Channel Cards
+        function renderChannels() {
+            const container = document.getElementById('channels-container');
+            container.innerHTML = channelsData.map(ch => `
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 case-card">
+                    <div class="mb-3">
+                        <h3 class="text-base font-bold text-slate-900">${ch.title}</h3>
+                        <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mt-1">
+                            <strong>Cenário:</strong> ${ch.scenario}
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Quem comunica?</label>
+                            <input type="text" id="ch_${ch.id}_quem" class="w-full p-2.5 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Supervisor">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Para quem?</label>
+                            <input type="text" id="ch_${ch.id}_para" class="w-full p-2.5 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Trabalhador">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Qual é o objetivo?</label>
+                            <input type="text" id="ch_${ch.id}_objetivo" class="w-full p-2.5 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Interromper risco">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">O canal é adequado?</label>
+                            <div class="flex items-center space-x-6 text-sm font-medium">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="ch_${ch.id}_adequado" value="Sim" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-2 text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">Sim</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="ch_${ch.id}_adequado" value="Parcialmente" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-2 text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200">Parcialmente</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="ch_${ch.id}_adequado" value="Não" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-2 text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-md border border-rose-200">Não</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Justifique sua resposta</label>
+                            <textarea id="ch_${ch.id}_justificativa" class="w-full p-3 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500" placeholder="Escreva sua justificativa..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Validate Etapa 1 Completion before advancing
+        function validateEtapa1() {
+            const teamName = document.getElementById('team-name').value.trim();
+            if (!teamName) {
+                alert('Por favor, preencha o Nome da Equipe / Integrantes no topo antes de avançar.');
+                document.getElementById('team-name').focus();
+                return false;
+            }
+
+            // Check if at least some required fields in stage 1 are populated
+            const c1_q1 = document.getElementById('c1_q1').value.trim();
+            if (!c1_q1) {
+                alert('Por favor, responda às questões da Etapa 1 antes de avançar para a Etapa 2.');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Switch Steps with tab navigation & validation
+        function switchStep(step) {
+            if (step === 2) {
+                if (!validateEtapa1()) {
+                    return;
+                }
+                document.getElementById('etapa-1').classList.add('hidden');
+                document.getElementById('etapa-2').classList.remove('hidden');
+
+                // Update tab styles
+                document.getElementById('tab-btn-1').className = "px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all duration-200 flex items-center space-x-2";
+                document.getElementById('tab-btn-2').className = "px-4 py-2 rounded-lg bg-indigo-600 text-white shadow transition-all duration-200 flex items-center space-x-2";
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                currentStep = 2;
+            } else {
+                document.getElementById('etapa-2').classList.add('hidden');
+                document.getElementById('etapa-1').classList.remove('hidden');
+
+                // Update tab styles
+                document.getElementById('tab-btn-1').className = "px-4 py-2 rounded-lg bg-brand-500 text-white shadow transition-all duration-200 flex items-center space-x-2";
+                document.getElementById('tab-btn-2').className = "px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all duration-200 flex items-center space-x-2";
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                currentStep = 1;
+            }
+        }
+
+        // Export Activity to PDF
+        function exportToPDF() {
+            const teamName = document.getElementById('team-name').value.trim() || 'Equipe_Sem_Nome';
+
+            // Show both steps for print capture
+            const step1 = document.getElementById('etapa-1');
+            const step2 = document.getElementById('etapa-2');
+
+            step1.classList.remove('hidden');
+            step2.classList.remove('hidden');
+
+            const element = document.getElementById('pdf-content');
+
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     `Atividade_Comunicacao_${teamName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Generate PDF
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restore current active view
+                if (currentStep === 1) {
+                    step2.classList.add('hidden');
+                } else {
+                    step1.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
